@@ -49,9 +49,7 @@ def initialize():
 def location(message):
     """send location and add data in database"""
     if message.location is not None:
-        temp_location = message.location
-
-        bot.send_message(message.chat.id, temp_location)
+        bot.send_message(message.chat.id, text='I put your location in the database.')
 
         try:
             User.create(telegram_id=message.from_user.id,
@@ -72,18 +70,18 @@ def location(message):
 
 
 @bot.message_handler(content_types=['text'])
-def get_location_btn(messsage):
+def get_location_btn(message):
     """get location button"""
-    if 'Get Location' in messsage.text:
-        bot.send_message(messsage.chat.id, text='Send TelegramID')
-        bot.register_next_step_handler(messsage, get_location)
+    if 'Get Location' in message.text:
+        bot.send_message(message.chat.id, text='Send TelegramID')
+        bot.register_next_step_handler(message, get_location)
     else:
-        bot.send_message(messsage.chat.id, text='Send or Get Location')
+        bot.send_message(message.chat.id, text='Send or Get Location')
 
 
 def get_location(message):
     """select location from database"""
-    users_id = int(message.text)
+    users_id = message.text
     try:
         query = (User
                  .select(User.telegram_id,
@@ -95,20 +93,17 @@ def get_location(message):
                  .where(User.telegram_id == users_id))
 
         for m in query:
-            if int(users_id) == int(m.telegram_id):
+            bot.send_message(message.chat.id, text='Username : %s \n'
+                                                   'Name: %s %s \n'
+                                                   'Latitude: %F \n'
+                                                   'Longitude: %F \n'
+                                                   % (m.name,
+                                                      m.first_name, m.last_name,
+                                                      m.latitude,
+                                                      m.longitude))
+            bot.send_message(message.chat.id, text='LAST LOCATION: ')
+            bot.send_location(message.chat.id, m.latitude, m.longitude)
 
-                bot.send_message(message.chat.id, text='Username : %s \n'
-                                                       'Name: %s %s \n'
-                                                       'Latitude: %F \n'
-                                                       'Longitude: %F \n'
-                                                       % (m.name,
-                                                          m.first_name, m.last_name,
-                                                          m.latitude,
-                                                          m.longitude))
-                bot.send_message(message.chat.id, text='LAST LOCATION: ')
-                bot.send_location(message.chat.id, m.latitude, m.longitude)
-            else:
-                bot.send_message(message.chat.id, text='User is not exist')
     except ValueError:
         bot.send_message(message.chat.id, text='ENTER NORMAL TELEGRAMID, IDIOT')
 

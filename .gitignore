@@ -118,3 +118,4 @@ dmypy.json
 .idea/
 
 *.telegram.db
+.telegram.db
