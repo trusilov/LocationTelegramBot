@@ -50,6 +50,7 @@ def location(message):
     """send location and add data in database"""
     if message.location is not None:
         bot.send_message(message.chat.id, text='I put your location in the database.')
+        bot.send_message(message.chat.id, text='Your TelegramID: %d' % message.from_user.id)
 
         try:
             User.create(telegram_id=message.from_user.id,
